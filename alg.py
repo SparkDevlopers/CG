@@ -1,5 +1,5 @@
 from typing import Tuple
-import numpy as np
+
 from piece import Piece
 
 def pKnight(piece :Piece):
