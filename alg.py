@@ -1,5 +1,5 @@
 from typing import Tuple
-
+import numpy as np
 from piece import Piece
 
 def pKnight(piece :Piece):
@@ -70,12 +70,8 @@ def pPawn(piece :Piece):
         pass
     return p
 
-def putYourPenisInMyBooty():
-    print("glug glug glug")
-
 tPiece = Piece((0,1), True, True)
 
 print(pPawn(tPiece))
-
 
 
