@@ -5,7 +5,7 @@ import chess_board
 
 #temporary for testing
 king = Piece((1, 5), True, True)
-chess_board.activeWPieces.append(king)
+chess_board.activeWPieces.add(king)
 tPiece = Piece((1,8), True, True)
 
 def pKnight(piece :Piece):
