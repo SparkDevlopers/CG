@@ -5,7 +5,7 @@ import chess_board
 
 #temporary for testing
 king = Piece((1, 5), True, True)
-chess_board.activeWPieces.add(king)
+chess_board.activeWPieces.append(king)
 tPiece = Piece((1,8), True, True)
 
 def pKnight(piece :Piece):
@@ -36,8 +36,10 @@ def pBishop(piece :Piece):
 def pRook(piece :Piece):
     p =[]
     pos = piece.position
+    #The maximum number of legal moves the rook have in each axis is 8, so:
     for i in range(1, 8):
         temp = [(pos[0]+i, pos[1]), (pos[0]-i, pos[1]), (pos[0], pos[1]+i), (pos[0], pos[1]-i)]
+        print(temp) #for debugging
         for f in temp:
             if checkInBoard(f) == True:
                 p.append(f)
@@ -76,20 +78,24 @@ def pPawn(piece :Piece):
     finalValidation(p, piece)
 
 def checkInBoard(cpos: Tuple[int, int]):
-    if 0<= cpos[0] <= 7 and 0<= cpos[1] <= 7:
+    #Checks if a generated coord is within bounds
+    if 1<= cpos[0] <= 8 and 1<= cpos[1] <= 8:
         return True
     else:
         return False
     
 
-def finalValidation(lMoves, piece :Piece):
-    tempWPos = []
+def finalValidation(lMoves , piece: Piece):
+    #list of generated pseudo legal moves is passed as lMoves
+    tempWPos = []   
     tempBPos = []
 
     for i in chess_board.activeBPieces:
+        #checks if any black pieces are on the pseudo legal squares
         if i.position in set(lMoves):
             tempBPos.append(i.position)
     for i in chess_board.activeWPieces:
+        #checks if any white pieces are on the pseudo legal squares
         if i.position in set(lMoves):
             tempWPos.append(i.position)
     
