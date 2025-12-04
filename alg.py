@@ -36,7 +36,7 @@ def pBishop(piece :Piece):
 def pRook(piece :Piece):
     p =[]
     pos = piece.position
-    #The maximum number of legal moves the rook have in each axis is 8, so:
+    #The maximum number of legal moves the rook can have in each axis is 8, so:
     for i in range(1, 8):
         temp = [(pos[0]+i, pos[1]), (pos[0]-i, pos[1]), (pos[0], pos[1]+i), (pos[0], pos[1]-i)]
         print(temp) #for debugging
@@ -83,6 +83,10 @@ def checkInBoard(cpos: Tuple[int, int]):
         return True
     else:
         return False
+
+def checkIfTheSameColour(cpos: Tuple[int, int], piece :Piece):
+    piece.white == True
+    
     
 
 def finalValidation(lMoves , piece: Piece):
