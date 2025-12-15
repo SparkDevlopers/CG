@@ -4,36 +4,42 @@ from piece import Piece
 import chess_board
 
 
-#generates the pseudo legal moves for the Knight
-def pKnight(piece :Piece):
-    p = []
+#generates the legal moves for the Knight
+def Knight(piece :Piece):
+
+    legal_moves = []
     pos = piece.position
     mod = [(1, 2), (-1, 2), (-1, -2), (1, -2), (2, 1), (-2, 1), (-2, -1), (2, -1)]
     for i in mod:
         temp =tuple(np.add(np.array(pos), np.array(i)).tolist())
-        if checkInBoard(temp) == True:
-            p.append(temp)
+        if checkInBoard(temp) == True and (checkPos(temp) == False or checkPos(temp).white != piece.white):
+            legal_moves.append(temp)
         else:
             continue
+    
+    #to test if the function works
+    print(legal_moves)
 
-    finalValidation(p, piece)
-
-#generates the pseudo legal moves for the Bishop
-def pBishop(piece :Piece):
-    p =[]
+#generates the legal moves for the Bishop
+def Bishop(piece :Piece):
+    legal_moves =[]
+    metAPiece = False
     pos = piece.position
     for i in range(1, 8):
         temp = [(pos[0]+i, pos[1]+i), (pos[0]-i, pos[1]-i), (pos[0]-i, pos[1]+i), (pos[0]+i, pos[1]-i)]
         for f in temp:
-            if checkInBoard(f) == True:
-                p.append(f)
+            if checkInBoard(f) == True and metAPiece == False and (checkPos(f) == False or checkPos(f).white != piece.white):
+                legal_moves.append(f)
+                metAPiece = True
+                #my idea is to use legal_moves.remove() to removve a modifire when i meet a piece in that axis
             else:
-                continue
-    finalValidation(p, piece)
+                metAPiece = True
+    #to test if the function works
+    print(legal_moves)
 
-#generates the pseudo legal moves for the Rook
-def pRook(piece :Piece):
-    p =[]
+#generates the legal moves for the Rook
+def Rook(piece :Piece):
+    legal_moves =[]
     pos = piece.position
     #The maximum number of legal moves the rook can have in each axis is 8, so:
     for i in range(1, 8):
@@ -41,42 +47,39 @@ def pRook(piece :Piece):
         print(temp) #for debugging
         for f in temp:
             if checkInBoard(f) == True:
-                p.append(f)
+                legal_moves.append(f)
             else:
                 continue
 
-    print(p)    #for debugging
-    finalValidation(p, piece)
 
-#generates the pseudo legal moves for the Queen
-def pQueen(piece :Piece):
-    p =[]
+#generates the legal moves for the Queen
+def Queen(piece :Piece):
+    legal_moves =[]
     pos = piece.position
     for i in range(1, 8):
         temp = [(pos[0]+i, pos[1]), (pos[0]-i, pos[1]), (pos[0], pos[1]+i), (pos[0], pos[1]-i), (pos[0]+i, pos[1]+i), (pos[0]-i, pos[1]-i), (pos[0]-i, pos[1]+i), (pos[0]+i, pos[1]-i)]
         for f in temp:  
             if checkInBoard(f) == True:
-                p.append(f)
+                legal_moves.append(f)
             else:
                 continue
-    finalValidation(p, piece)
 
-#generates the pseudo legal moves for the Pawn
-def pPawn(piece :Piece):
-    p =[]
+#generates the legal moves for the Pawn
+def Pawn(piece :Piece):
+    legal_moves =[]
     pos = piece.position
 
     if piece.has_moved == True:
         if piece.white == True:
-            p.extend([(pos[0]+1, pos[1])])
+            legal_moves.extend([(pos[0]+1, pos[1])])
         else:
-            p.extend((pos[0]-1, pos[1]))
+            legal_moves.extend((pos[0]-1, pos[1]))
     else:
         if piece.white == True:
-            p.extend([(pos[0]+2, pos[1]), (pos[0]+1, pos[1])])
+            legal_moves.extend([(pos[0]+2, pos[1]), (pos[0]+1, pos[1])])
         else:
-            p.extend([(pos[0]-2, pos[1]), (pos[0]-1, pos[1])])
-    finalValidation(p, piece)
+            legal_moves.extend([(pos[0]-2, pos[1]), (pos[0]-1, pos[1])])
+
 
 def checkInBoard(cpos: Tuple[int, int]):
     #Checks if a generated coord is within bounds
@@ -85,26 +88,16 @@ def checkInBoard(cpos: Tuple[int, int]):
     else:
         return False
 
-
-def finalValidation(lMoves , piece: Piece):
-    #list of generated pseudo legal moves is passed as lMoves
-    tempWPos = []   
-    tempBPos = []
-
-    for i in chess_board.activeBPieces:
-        #checks if any black pieces are on the pseudo legal squares
-        if i.position in set(lMoves):
-            tempBPos.append(i.position)
-    for i in chess_board.activeWPieces:
-        #checks if any white pieces are on the pseudo legal squares
-        if i.position in set(lMoves):
-            tempWPos.append(i.position)
-    
-    #removing the position of the same colour pieces from the list of legal moves
-    if piece.white == True:
-        lMoves = set(lMoves)-set(tempWPos)
+#checks if there is a piece in a given square
+def checkPos(pos: Tuple[int, int]):
+    if chess_board.board[pos] == None:
+        return False
     else:
-        lMoves = set(lMoves)-set(tempBPos)
+        return chess_board.board[pos]
 
-    print(lMoves)  #temporary to test the function
+
+tPawn = Piece("Pawn", (2,2), False, True)    
+tBishop = Piece("Bishop", (1,1), True, True)
+
+Bishop(tBishop)
 
