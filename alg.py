@@ -3,11 +3,8 @@ import numpy as np
 from piece import Piece
 import chess_board
 
-#temporary for testing
-king = Piece((1, 5), True, True)
-chess_board.activeWPieces.append(king)
-tPiece = Piece((1,8), True, True)
 
+#generates the pseudo legal moves for the Knight
 def pKnight(piece :Piece):
     p = []
     pos = piece.position
@@ -21,6 +18,7 @@ def pKnight(piece :Piece):
 
     finalValidation(p, piece)
 
+#generates the pseudo legal moves for the Bishop
 def pBishop(piece :Piece):
     p =[]
     pos = piece.position
@@ -33,6 +31,7 @@ def pBishop(piece :Piece):
                 continue
     finalValidation(p, piece)
 
+#generates the pseudo legal moves for the Rook
 def pRook(piece :Piece):
     p =[]
     pos = piece.position
@@ -49,6 +48,7 @@ def pRook(piece :Piece):
     print(p)    #for debugging
     finalValidation(p, piece)
 
+#generates the pseudo legal moves for the Queen
 def pQueen(piece :Piece):
     p =[]
     pos = piece.position
@@ -61,6 +61,7 @@ def pQueen(piece :Piece):
                 continue
     finalValidation(p, piece)
 
+#generates the pseudo legal moves for the Pawn
 def pPawn(piece :Piece):
     p =[]
     pos = piece.position
@@ -84,10 +85,6 @@ def checkInBoard(cpos: Tuple[int, int]):
     else:
         return False
 
-def checkIfTheSameColour(cpos: Tuple[int, int], piece :Piece):
-    piece.white == True
-    
-    
 
 def finalValidation(lMoves , piece: Piece):
     #list of generated pseudo legal moves is passed as lMoves
@@ -111,5 +108,3 @@ def finalValidation(lMoves , piece: Piece):
 
     print(lMoves)  #temporary to test the function
 
-
-pRook(tPiece)

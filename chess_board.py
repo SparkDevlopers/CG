@@ -1,3 +1,5 @@
+from typing import Tuple
+
 
 #Stores all the pieces
 activeWPieces = []
@@ -5,7 +7,7 @@ activeBPieces = []
 capturedWPieces = []
 capturedBPieces = []
 
-board = {
+board:dict[Tuple[int, int], None|object] = {
     (1,1): None, (1,2): None, (1,3): None, (1,4): None, (1,5): None, (1,6): None, (1,7): None, (1,8): None,
     (2,1): None, (2,2): None, (2,3): None, (2,4): None, (2,5): None, (2,6): None, (2,7): None, (2,8): None,
     (3,1): None, (3,2): None, (3,3): None, (3,4): None, (3,5): None, (3,6): None, (3,7): None, (3,8): None,
