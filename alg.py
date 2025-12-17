@@ -3,6 +3,23 @@ import numpy as np
 from piece import Piece
 import chess_board
 
+#decides which function to call depending on it name
+def getLegalMove(piece :Piece):
+    name = piece.name
+    match name:
+        case "Pawn":
+            return Pawn(piece)
+        case "Rook":
+            return Rook(piece)
+        case "Knight":
+            return Knight(piece)
+        case "Bishop":
+            return Bishop(piece)
+        case "Queen":
+            return Queen(piece)
+        case "King":
+            return King(piece)
+
 
 #generates the legal moves for the Knight
 def Knight(piece :Piece):
@@ -23,17 +40,24 @@ def Knight(piece :Piece):
 #generates the legal moves for the Bishop
 def Bishop(piece :Piece):
     legal_moves =[]
-    metAPiece = False
     pos = piece.position
+    remove = set()
     for i in range(1, 8):
         temp = [(pos[0]+i, pos[1]+i), (pos[0]-i, pos[1]-i), (pos[0]-i, pos[1]+i), (pos[0]+i, pos[1]-i)]
-        for f in temp:
-            if checkInBoard(f) == True and metAPiece == False and (checkPos(f) == False or checkPos(f).white != piece.white):
-                legal_moves.append(f)
-                metAPiece = True
-                #my idea is to use legal_moves.remove() to removve a modifire when i meet a piece in that axis
-            else:
-                metAPiece = True
+        if remove:
+            result = [v for i, v in enumerate(temp) if i not in remove]
+        else:
+            result = temp
+            
+        for f in result:
+            if checkInBoard(f) == True:
+                if checkPos(f) == False:
+                    legal_moves.append(f)
+                elif checkPos(f).white != piece.white:
+                    legal_moves.append(f)
+                    remove.add(temp.index(f))
+                else:
+                    remove.add(temp.index(f))
     #to test if the function works
     print(legal_moves)
 
@@ -80,6 +104,9 @@ def Pawn(piece :Piece):
         else:
             legal_moves.extend([(pos[0]-2, pos[1]), (pos[0]-1, pos[1])])
 
+def King(piece :Piece):
+    pass
+
 
 def checkInBoard(cpos: Tuple[int, int]):
     #Checks if a generated coord is within bounds
@@ -96,8 +123,9 @@ def checkPos(pos: Tuple[int, int]):
         return chess_board.board[pos]
 
 
-tPawn = Piece("Pawn", (2,2), False, True)    
-tBishop = Piece("Bishop", (1,1), True, True)
+tPawn1 = Piece("Pawn", (6,6), True, True)  
+tPawn2 = Piece("Pawn", (3,7), False, True)      
+tBishop = Piece("Bishop", (5,5), True, True)
 
 Bishop(tBishop)
 
