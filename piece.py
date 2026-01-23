@@ -8,10 +8,18 @@ class Piece:
     name:str
     _position: Tuple[int, int]
     white: bool
-    has_moved: bool = False
+    has_moved = False
+    is_captured = False
+
     #update sthe position of the piece on the board just after its initialised
     def __post_init__(self):
         chess_board.board[self._position] = self
+
+        #marks the piece as active
+        if self.white:
+            chess_board.activeWPieces.append(self)
+        else:
+            chess_board.activeBPieces.append(self)
 
     #to access the position of the piece
     @property
@@ -25,3 +33,18 @@ class Piece:
         self._position = inp
         chess_board.board[self._position] = self
 
+    #to access the status of the piece
+    @property
+    def is_captured(self):
+        return self._position
+        
+    #setter function for is_captured
+    @is_captured.setter
+    def is_captured(self, inp:bool):
+        if self.white:
+            chess_board.activeWPieces.remove(self)
+            chess_board.capturedWPieces.append(self)
+        else:
+            chess_board.activeBPieces.remove(self)
+            chess_board.capturedBPieces.append(self)
+        self._position = inp

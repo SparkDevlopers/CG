@@ -4,9 +4,8 @@ from piece import Piece
 import chess_board
 
 #decides which function to call depending on it name
-def getLegalMove(piece :Piece):
-    name = piece.name
-    match name:
+def getLegalMoves(piece :Piece):
+    match piece.name:
         case "Pawn":
             return Pawn(piece)
         case "Rook":
@@ -19,6 +18,7 @@ def getLegalMove(piece :Piece):
             return Queen(piece)
         case "King":
             return King(piece)
+    raise RuntimeError(f"Unknown piece name: {piece.name!r}")
 
 
 #generates the legal moves for the Knight
@@ -34,16 +34,16 @@ def Knight(piece :Piece):
         else:
             continue
     
-    #to test if the function works
-    print(legal_moves)
+    return legal_moves
 
 #generates the legal moves for the Bishop
 def Bishop(piece :Piece):
-    legal_moves =[]
+    legal_moves = []
     pos = piece.position
     remove = set()
     for i in range(1, 8):
         temp = [(pos[0]+i, pos[1]+i), (pos[0]-i, pos[1]-i), (pos[0]-i, pos[1]+i), (pos[0]+i, pos[1]-i)]
+        #removes the modifiers that are unnessary
         if remove:
             result = [v for i, v in enumerate(temp) if i not in remove]
         else:
@@ -58,39 +58,42 @@ def Bishop(piece :Piece):
                     remove.add(temp.index(f))
                 else:
                     remove.add(temp.index(f))
-    #to test if the function works
-    print(legal_moves)
+    return legal_moves
 
 #generates the legal moves for the Rook
 def Rook(piece :Piece):
-    legal_moves =[]
+    legal_moves = []
     pos = piece.position
-    #The maximum number of legal moves the rook can have in each axis is 8, so:
+    remove = set()
     for i in range(1, 8):
         temp = [(pos[0]+i, pos[1]), (pos[0]-i, pos[1]), (pos[0], pos[1]+i), (pos[0], pos[1]-i)]
-        print(temp) #for debugging
-        for f in temp:
+        #removes the modifiers that are unnessary
+        if remove:
+            result = [v for i, v in enumerate(temp) if i not in remove]
+        else:
+            result = temp
+            
+        for f in result:
             if checkInBoard(f) == True:
-                legal_moves.append(f)
-            else:
-                continue
+                if checkPos(f) == False:
+                    legal_moves.append(f)
+                elif checkPos(f).white != piece.white:
+                    legal_moves.append(f)
+                    remove.add(temp.index(f))
+                else:
+                    remove.add(temp.index(f))
+    return legal_moves
 
 
 #generates the legal moves for the Queen
 def Queen(piece :Piece):
-    legal_moves =[]
-    pos = piece.position
-    for i in range(1, 8):
-        temp = [(pos[0]+i, pos[1]), (pos[0]-i, pos[1]), (pos[0], pos[1]+i), (pos[0], pos[1]-i), (pos[0]+i, pos[1]+i), (pos[0]-i, pos[1]-i), (pos[0]-i, pos[1]+i), (pos[0]+i, pos[1]-i)]
-        for f in temp:  
-            if checkInBoard(f) == True:
-                legal_moves.append(f)
-            else:
-                continue
+    return Rook(piece)+Bishop(piece)
+    
+    
 
 #generates the legal moves for the Pawn
 def Pawn(piece :Piece):
-    legal_moves =[]
+    legal_moves = []
     pos = piece.position
 
     if piece.has_moved == True:
@@ -122,10 +125,38 @@ def checkPos(pos: Tuple[int, int]):
     else:
         return chess_board.board[pos]
 
+#checks if a cetain move puts the king in danger
+def checkKingDanger(piece:Piece, move:Tuple[int,int]):
+    currentPos = piece.position
+    #searches the activeWPieces or activeBPieces(depending on the colour of the current piece) for the King and gets its position
+    kingPos = next(o.position for o in (chess_board.activeWPieces if piece.white else chess_board.activeBPieces) if o.name == "King")
+    allEnemyMoves = []
+    piece.position = move   #temporarily setting the position of the piece to the new position
+    
+    
+    if piece.white == True:
+        for i in chess_board.activeBPieces:
+            allEnemyMoves.extend(getLegalMoves(i))
+    else:
+        for i in chess_board.activeWPieces:
+            allEnemyMoves.extend(getLegalMoves(i))
+    
+    #checks if the king is in danger
+    if kingPos in allEnemyMoves:
+        piece.position = currentPos
+        return True
+    else:
+        piece.position = currentPos
+        return False
+        
 
-tPawn1 = Piece("Pawn", (6,6), True, True)  
-tPawn2 = Piece("Pawn", (3,7), False, True)      
-tBishop = Piece("Bishop", (5,5), True, True)
 
-Bishop(tBishop)
+#WQueen = Piece("Queen", (2,4), True)      
+#WKing = Piece("King", (1,5), True)
+#BBishop = Piece("Bishop", (5,1), False)
+BBishop = Piece("Knight", (7,3), False)
+#x,y = input().split()
+#move  = (int(x), int(y))
+#print("valid move" if move in (getLegalMoves(BBishop)) and checkKingDanger( BBishop, move)else "fck")
 
+print(getLegalMoves(BBishop))
