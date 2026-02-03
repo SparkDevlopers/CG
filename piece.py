@@ -30,8 +30,17 @@ class Piece:
     @position.setter
     def position(self, inp:Tuple[int, int]):
         chess_board.board[self._position] = None
+        if self.white == True:
+            chess_board.activeWPieces.remove(self)
+        else:
+            chess_board.activeBPieces.remove(self)
         self._position = inp
+        if self.white == True:
+            chess_board.activeWPieces.append(self)
+        else:
+            chess_board.activeBPieces.append(self)
         chess_board.board[self._position] = self
+        self.has_moved = True
 
     #to access the status of the piece
     @property
@@ -47,4 +56,5 @@ class Piece:
         else:
             chess_board.activeBPieces.remove(self)
             chess_board.capturedBPieces.append(self)
-        self._position = inp
+
+

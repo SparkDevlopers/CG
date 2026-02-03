@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional, List
 import numpy as np
 from piece import Piece
 import chess_board
@@ -96,19 +96,32 @@ def Pawn(piece :Piece):
     legal_moves = []
     pos = piece.position
 
+    mod = 1 if piece.white == True else -1
+
+    temp = [(pos[0]+mod, pos[1]+1), (pos[0]+mod, pos[1]-1)]
+    for i in temp:
+            if checkInBoard(i) == True and (checkPos(i) != False and checkPos(i).white != piece.white):
+                legal_moves.append(i)
+
     if piece.has_moved == True:
-        if piece.white == True:
-            legal_moves.extend([(pos[0]+1, pos[1])])
-        else:
-            legal_moves.extend((pos[0]-1, pos[1]))
+        legal_moves.extend([(pos[0]+mod, pos[1])])
     else:
-        if piece.white == True:
-            legal_moves.extend([(pos[0]+2, pos[1]), (pos[0]+1, pos[1])])
-        else:
-            legal_moves.extend([(pos[0]-2, pos[1]), (pos[0]-1, pos[1])])
+        temp = [(pos[0]+(2*mod), pos[1]), (pos[0]+mod, pos[1])]
+        for i in temp:
+            if checkInBoard(i) == True and (checkPos(i) == False):
+                legal_moves.append(i)
+    return legal_moves
+
+
 
 def King(piece :Piece):
-    pass
+    pos = piece.position
+    legal_moves = []
+    temp = [(pos[0]+1, pos[1]+1), (pos[0]-1, pos[1]-1),(pos[0]+1, pos[1]-1), (pos[0]-1, pos[1]+1), (pos[0], pos[1]+1), (pos[0], pos[1]-1),(pos[0]+1, pos[1]), (pos[0]-1, pos[1])]
+    for i in temp:
+            if checkInBoard(i) == True and (checkPos(i) == False):
+                legal_moves.append(i)
+    return legal_moves
 
 
 def checkInBoard(cpos: Tuple[int, int]):
@@ -149,14 +162,38 @@ def checkKingDanger(piece:Piece, move:Tuple[int,int]):
         piece.position = currentPos
         return False
         
+def checkGameEnd(white:bool):
+    #searches the activeWPieces or activeBPieces(depending on the colour of the current piece) for the King and gets its position
+    oppositeKing = next(p for p in (chess_board.activeBPieces if white else chess_board.activeWPieces)if p.name == "King")
+    allMoves = []
+    
+    if white == False:
+        for i in chess_board.activeBPieces:
+            allMoves.extend(getLegalMoves(i))
+    else:
+        for i in chess_board.activeWPieces:
+            allMoves.extend(getLegalMoves(i))
+    #checks if the king is in danger
+    if oppositeKing.position in allMoves:
+        temp =0
+        for i in getLegalMoves(oppositeKing):
+            if checkKingDanger(oppositeKing, i) == False:
+                temp +=1
+        print(temp)
+        if temp>0:
+            return True     
+    else:
+        return False
 
 
 #WQueen = Piece("Queen", (2,4), True)      
 #WKing = Piece("King", (1,5), True)
-#BBishop = Piece("Bishop", (5,1), False)
-BBishop = Piece("Knight", (7,3), False)
+"""BBishop = Piece("Bishop", (5,1), False)
+print(chess_board.activeBPieces, chess_board.board)
+BBishop.position=(1,1)
+print(chess_board.activeBPieces, chess_board.board)"""
+
+#BBishop = Piece("Knight", (7,3), False)
 #x,y = input().split()
 #move  = (int(x), int(y))
 #print("valid move" if move in (getLegalMoves(BBishop)) and checkKingDanger( BBishop, move)else "fck")
-
-print(getLegalMoves(BBishop))
