@@ -1,7 +1,9 @@
+import alg
 import pygame
 import math
 import chess_board
 from piece import Piece
+from typing import Tuple
 
 pygame.init()
 
@@ -49,6 +51,8 @@ bPawn5 = Piece("Pawn", (7, 5), False)
 bPawn6 = Piece("Pawn", (7, 6), False)
 bPawn7 = Piece("Pawn", (7, 7), False)
 bPawn8 = Piece("Pawn", (7, 8), False)
+
+turn =1
 
 #to resize the chess board and the pieces
 scale = 1.5
@@ -101,9 +105,31 @@ def drawboard():
                 colour = (243,238,170)
             pygame.draw.rect(screen,colour,(squareSize*i,squareSize*k,squareSize,squareSize))
 
-            temp +=1
+            temp += 1
 
-open =True
+move = []
+def getMove(pos:Tuple[int, int]):
+    if not move:
+        move.append(pos)
+    else:
+        move.append(pos)
+        pos, destination = move[0], move[1]
+        move.clear()
+        game(pos, destination)
+
+
+def game(pos, destination):
+    global turn 
+    isWhite = False if turn % 2 == 0 else True
+    if chess_board.board[pos] != None and chess_board.board[pos].white == isWhite :
+        if destination in alg.getLegalMoves(chess_board.board[pos]) and alg.checkKingDanger(chess_board.board[pos], destination) == False:
+            if chess_board.board[destination] != None:
+                chess_board.board[destination].is_captured = True
+            chess_board.board[pos].position = destination
+            turn += 1
+
+
+open = True
 while open:
     for event in pygame.event.get():
         #checks if the user tries to close the window
@@ -113,12 +139,12 @@ while open:
             x,y = pygame.mouse.get_pos()
             x,y = math.floor(x/squareSize), math.floor(y/squareSize)
             if 1 <= x <= 8 and 1 <= y <= 8:
-                bPawn1.position = (5,1)
+                getMove((9-y,x))
                 print(f"The user clicked on {9-y} and {x}")
 
     
     #changes the background colour
-    screen.fill((255,255,255))
+    screen.fill((0,0,0) if turn % 2== 0 else(255,255,255))
 
 
     
@@ -127,5 +153,6 @@ while open:
     renderPieces()
 
 
+    print(alg.checkGameEnd(False if turn%2 == 0 else True))
     pygame.display.flip()
 
