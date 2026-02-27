@@ -72,7 +72,11 @@ def game(move:list,player:str):
         print("its valid")
     else:
         print("its not valid")
+        alg.printBoard()
         game(getMove(player), player)
+
+
+    
 
 while gameStart:
     if turn % 2 == 0:
@@ -89,4 +93,7 @@ while gameStart:
     if alg.checkGameEnd(True if player == "White" else False) == True:
         print(f"game end, {player} won")
         gameStart = False
+
+    alg.printBoard()
     turn += 1
+

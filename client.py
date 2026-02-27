@@ -9,7 +9,10 @@ pygame.init()
 
 #creates a window
 screen = pygame.display.set_mode((1366, 768))
+bgColour = (255,255,255) 
 
+
+font = pygame.font.Font(None, 28)  
 
 # WHITE PIECES
 
@@ -62,6 +65,8 @@ squareSize = 50*scale
 image = pygame.transform.scale(image, (50, 50))"""
 
 sprites = {}
+pgn = []
+    
 
 #laods all the required spriets into memory
 def loadSprites():
@@ -85,7 +90,7 @@ def renderPieces():
 
             image = sprites[(colour, piece.name)]
             screen.blit(image, pos)
-
+        
 #hover effect for the chess board
 def onHover():
     x,y = pygame.mouse.get_pos()
@@ -110,24 +115,80 @@ def drawboard():
 move = []
 def getMove(pos:Tuple[int, int]):
     if not move:
-        move.append(pos)
+        if chess_board.board[pos] != None and chess_board.board[pos].white == False if turn % 2 == 0 else True :
+            move.append(pos)
     else:
         move.append(pos)
         pos, destination = move[0], move[1]
         move.clear()
         game(pos, destination)
 
+def moveHistory(piece:Piece, pos,  destination, capture:bool, state):
+    pieces = ["Rook", "Knight", "Bishop", "Queen", "King", "Pawn"]
+    symbols = ["R", "N", "B", "Q", "K", ""]
+    columns = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    pieceSymbol = symbols[pieces.index(piece.name)]
+    row = ""
+    if capture:
+        if piece.name == "Pawn":
+            row = columns[pos[1]-1]
+
+    capture = "x" if capture == True else ""
+    destination = (columns[destination[1]-1], destination[0])
+
+    pgn.append(f"{row}{pieceSymbol}{capture}{destination[0]}{destination[1]}{state}")
+    print(f"{row}{pieceSymbol}{capture}{destination[0]}{destination[1]}{state}")
+
 
 def game(pos, destination):
     global turn 
     isWhite = False if turn % 2 == 0 else True
-    if chess_board.board[pos] != None and chess_board.board[pos].white == isWhite :
-        if destination in alg.getLegalMoves(chess_board.board[pos]) and alg.checkKingDanger(chess_board.board[pos], destination) == False:
+    piece = chess_board.board[pos]
+    if piece != None and piece.white == isWhite :
+        if destination in alg.getLegalMoves(piece) and alg.checkKingDanger(piece, destination) == False:
+            captures = False
             if chess_board.board[destination] != None:
                 chess_board.board[destination].is_captured = True
-            chess_board.board[pos].position = destination
+                captures = True
+            piece.position = destination
+
+            checkSymbol = "+" if next(p.position for p in (chess_board.activeWPieces if not piece.white else chess_board.activeBPieces) if p.name == "King") in alg.getLegalMoves(piece) else ""
+
             turn += 1
 
+            white_just_moved = (turn % 2 == 0)
+            if alg.checkGameEnd(white_just_moved):
+                moveHistory(piece,pos, destination, captures, "#")
+                print("Checkmate!\n" + ("White" if white_just_moved else "Black") + " Won!")
+            else:
+                moveHistory(piece,pos, destination, captures, checkSymbol)
+            
+def displayPGN():
+    temp = 1
+    chunks = [" ".join(pgn[i:i+2]) for i in range(0, len(pgn), 2)]
+    for i in chunks:
+        text_surface = font.render(i, True, (0, 0, 0))
+        screen.blit(text_surface, (700, temp*50+100))
+
+        temp += 1
+
+capturedBlackPieces = pygame.Surface((400, 300))
+capturedWhitePieces = pygame.Surface((400, 300))
+capturedBlackPieces.fill(bgColour)
+capturedWhitePieces.fill(bgColour)
+
+
+def displayCapturedPieces():
+        
+    x = 0 
+
+    for piece in chess_board.capturedBPieces:
+        capturedBlackPieces.blit(sprites[("Black", piece.name)], (x * squareSize, 100))
+        x += 1
+    x = 0 
+    for piece in chess_board.capturedWPieces:
+        capturedWhitePieces.blit(sprites[("White", piece.name)], (x * squareSize, 100))
+        x += 1
 
 open = True
 while open:
@@ -139,20 +200,24 @@ while open:
             x,y = pygame.mouse.get_pos()
             x,y = math.floor(x/squareSize), math.floor(y/squareSize)
             if 1 <= x <= 8 and 1 <= y <= 8:
-                getMove((9-y,x))
                 print(f"The user clicked on {9-y} and {x}")
+                getMove((9-y,x))
 
     
     #changes the background colour
-    screen.fill((0,0,0) if turn % 2== 0 else(255,255,255))
+    screen.fill(bgColour)
 
-
+    displayPGN()
+    """Fix the Issue where if you click the wrong coloured piece and then tries to make an actual move evrything breaks"""
     
     drawboard()
     onHover()
     renderPieces()
+    displayCapturedPieces()
+    screen.blit(capturedBlackPieces, (850, 0))
+    screen.blit(capturedWhitePieces, (850, 300))
 
-
-    print(alg.checkGameEnd(False if turn%2 == 0 else True))
+    #print(alg.checkGameEnd(False if turn%2 == 0 else True))
+    #print (chess_board.capturedBPieces, chess_board.capturedWPieces)
     pygame.display.flip()
 
